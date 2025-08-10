@@ -33,10 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
         initialColorValues[color.var] = { l: initialL, c: initialC, h: initialH };
 
+        // **PATH FIX NOTE**: The 'src' path MUST use forward slashes (/), not backslashes (\).
+        // Also, ensure the file is named exactly 'icon-chevron-down.svg'.
         container.innerHTML = `
             <div class="color-control-header" data-target-panel="panel-${color.var}">
                 <div class="color-swatch" style="background-color: var(--${color.var});"></div>
-                <div class="flex-grow">
+                <div>
                     <h4>${color.name}</h4>
                     <p class="value-label">
                         oklch(<span class="draggable-value" data-param="l" data-var="${color.var}" data-step="0.1">${initialL}</span>% 
@@ -65,15 +67,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const cSlider = container.querySelector(`#c-${color.var}`);
         const hSlider = container.querySelector(`#h-${color.var}`);
 
+        // This is the updateColor function, defined locally for this control
         const updateColor = () => {
             const l = lSlider.value;
             const c = cSlider.value;
             const h = hSlider.value;
 
+            // Update the CSS variables that control the page's global styles
             root.style.setProperty(`--${color.var}-l`, l);
             root.style.setProperty(`--${color.var}-c`, c);
             root.style.setProperty(`--${color.var}-h`, h);
             
+            // **BUG FIX ADDED**: Update the color swatch's background in real-time.
+            const swatch = container.querySelector('.color-swatch');
+            swatch.style.backgroundColor = `oklch(${l}% ${c} ${h})`;
+            
+            // Update the text value labels
             container.querySelector(`#l-val-${color.var}`).textContent = parseFloat(l).toFixed(1);
             container.querySelector(`#c-val-${color.var}`).textContent = parseFloat(c).toFixed(3);
             container.querySelector(`#h-val-${color.var}`).textContent = Math.round(h);
@@ -117,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const handleDrag = (moveEvent) => {
                 const dx = moveEvent.clientX - startX;
-                const step = parseFloat(el.dataset.step) * (param === 'l' ? 0.5 : 1); // Adjust sensitivity for lightness
+                const step = parseFloat(el.dataset.step) * (param === 'l' ? 0.5 : 1); 
                 let newValue = startValue + dx * step;
 
                 newValue = Math.max(parseFloat(slider.min), Math.min(parseFloat(slider.max), newValue));
