@@ -197,7 +197,7 @@
 
                 <div class="card">
                     <h3 class="text-2xl mb-6">Interactive Color Customizer</h3>
-                    <p class="mb-6">Below are the core colors for this page. Click to expand and use the sliders, or click and drag directly on the L, C, and H values to adjust them in real-time.</p>
+                    <p class="mb-6">Below are the core colors for this page. Click to expand and use the sliders, click and drag the values, or double-click a slider to reset it to its default value.</p>
                     
                     <div class="space-y-4" id="color-editor">
                         <!-- Color controls will be dynamically inserted here by JavaScript -->
@@ -217,6 +217,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const colorEditor = document.getElementById('color-editor');
             const root = document.documentElement;
+            const initialColorValues = {}; // Object to store default values
 
             const colorVariables = [
                 { name: 'Surface (Background)', var: 'surface-1' },
@@ -237,6 +238,9 @@
                 const initialL = getComputedStyle(root).getPropertyValue(`--${color.var}-l`).trim();
                 const initialC = getComputedStyle(root).getPropertyValue(`--${color.var}-c`).trim();
                 const initialH = getComputedStyle(root).getPropertyValue(`--${color.var}-h`).trim();
+                
+                // Store the initial values for the reset functionality
+                initialColorValues[color.var] = { l: initialL, c: initialC, h: initialH };
 
                 container.innerHTML = `
                     <div class="flex items-center gap-4 cursor-pointer color-control-header">
@@ -271,21 +275,16 @@
                 const cSlider = container.querySelector(`#c-${color.var}`);
                 const hSlider = container.querySelector(`#h-${color.var}`);
 
-                // The single source of truth for updating a color
                 const updateColor = () => {
                     const l = lSlider.value;
                     const c = cSlider.value;
                     const h = hSlider.value;
 
-                    // Directly update the composite variable for immediate visual feedback
                     root.style.setProperty(`--${color.var}`, `oklch(${l}% ${c} ${h})`);
-                    
-                    // Also update the component variables for state consistency
                     root.style.setProperty(`--${color.var}-l`, l);
                     root.style.setProperty(`--${color.var}-c`, c);
                     root.style.setProperty(`--${color.var}-h`, h);
                     
-                    // Update UI text values
                     container.querySelector(`#l-val-${color.var}`).textContent = parseFloat(l).toFixed(1);
                     container.querySelector(`#c-val-${color.var}`).textContent = parseFloat(c).toFixed(3);
                     container.querySelector(`#h-val-${color.var}`).textContent = Math.round(h);
@@ -297,6 +296,17 @@
                 lSlider.addEventListener('input', updateColor);
                 cSlider.addEventListener('input', updateColor);
                 hSlider.addEventListener('input', updateColor);
+
+                // --- NEW: Double-click to reset functionality ---
+                const resetSlider = (slider, param) => {
+                    slider.value = initialColorValues[color.var][param];
+                    slider.dispatchEvent(new Event('input', { bubbles: true }));
+                };
+
+                lSlider.addEventListener('dblclick', () => resetSlider(lSlider, 'l'));
+                cSlider.addEventListener('dblclick', () => resetSlider(cSlider, 'c'));
+                hSlider.addEventListener('dblclick', () => resetSlider(hSlider, 'h'));
+                // --- END NEW ---
                 
                 const header = container.querySelector('.color-control-header');
                 const panel = container.querySelector('.color-control-panel');
@@ -330,7 +340,7 @@
                             if (param === 'h') newValue = (newValue % 360 + 360) % 360;
                             
                             slider.value = newValue;
-                            updateColor(); // Call the central update function
+                            updateColor();
                         };
 
                         const stopDrag = () => {
