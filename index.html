@@ -398,6 +398,10 @@
                         document.body.style.cursor = 'ew-resize';
                     });
                 });
+                
+                // --- BUG FIX: Force initial color update on page load ---
+                updateColor();
+                // --- END BUG FIX ---
             });
         });
     </script>
