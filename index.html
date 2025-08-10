@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OKLCH for Mathematical Content</title>
+    <title>A Guide to OKLCH Color</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         // MathJax Configuration
@@ -31,7 +31,7 @@
             /* We define the L, C, H components separately for modular control */
             --surface-1-l: 15; --surface-1-c: 0.02; --surface-1-h: 250;
             --surface-2-l: 20; --surface-2-c: 0.025; --surface-2-h: 250;
-            --surface-3-l: 25; --surface-3-c: 0.03; --surface-3-h: 250;
+            --surface-3-l: 30; --surface-3-c: 0.03; --surface-3-h: 250;
             
             --text-primary-l: 95; --text-primary-c: 0.01; --text-primary-h: 250;
             --text-secondary-l: 65; --text-secondary-c: 0.01; --text-secondary-h: 250;
@@ -57,7 +57,7 @@
         body {
             background-color: var(--surface-1);
             color: var(--text-primary);
-            transition: background-color 0.3s ease, color 0.3s ease;
+            transition: background-color 0.1s ease, color 0.1s ease;
         }
         
         h1, h2, h3 { font-weight: 600; letter-spacing: -0.02em; }
@@ -78,7 +78,7 @@
             border-radius: 12px;
             border: 1px solid var(--surface-3);
             font-size: 1.5rem;
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
         }
         
         .card {
@@ -86,7 +86,7 @@
             border: 1px solid var(--surface-3);
             border-radius: 12px;
             padding: 2rem;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.1s ease, border-color 0.1s ease;
         }
         
         .color-control-panel {
@@ -125,27 +125,39 @@
             color: var(--text-primary);
         }
 
+        /* --- Slider Styling --- */
         input[type="range"] {
             -webkit-appearance: none; appearance: none;
-            width: 100%; height: 8px;
-            /* Changed to a lighter color for better visibility */
+            width: 100%; height: 6px;
             background: var(--surface-3);
-            border-radius: 5px; outline: none; opacity: 0.8;
-            transition: opacity .2s;
+            border-radius: 5px; outline: none;
+            /* Constant bright border for visibility */
+            border: 1px solid oklch(50% 0.02 250);
         }
-        input[type="range"]:hover { opacity: 1; }
+        
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none;
-            width: 20px; height: 20px;
-            background: var(--text-primary);
-            cursor: pointer; border-radius: 50%;
-            border: 3px solid var(--surface-2);
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            /* Constant white circle for the thumb */
+            background: oklch(98% 0 0);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid oklch(80% 0 0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            margin-top: -7px; /* Vertically center the thumb on the track */
         }
+
         input[type="range"]::-moz-range-thumb {
-            width: 20px; height: 20px;
-            background: var(--text-primary);
-            cursor: pointer; border-radius: 50%;
-            border: 3px solid var(--surface-2);
+            width: 18px;
+            height: 18px;
+            /* Constant white circle for the thumb */
+            background: oklch(98% 0 0);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid oklch(80% 0 0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
     </style>
 </head>
@@ -154,29 +166,28 @@
     <div class="max-w-4xl mx-auto px-6 py-16 md:py-24">
         
         <header class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">A Practical Guide to OKLCH</h1>
-            <p class="text-xl max-w-2xl mx-auto">Discover a more intuitive, human-centric way to work with color for your mathematical and technical content.</p>
+            <h1 class="text-4xl md:text-5xl font-bold">A Guide to OKLCH Color</h1>
         </header>
 
         <main class="space-y-12">
             
             <section id="why-oklch">
-                <h2 class="text-3xl mb-6">Why OKLCH is a Revolution for Web Color</h2>
+                <h2 class="text-3xl mb-6">The Advantage of OKLCH</h2>
                 <div class="prose prose-invert max-w-none space-y-4">
-                    <p>For years, we've used color models like <strong>RGB</strong> and <strong>HSL</strong>. While functional, they are based on how machines create color, not how humans perceive it. This leads to unpredictable results. For example, in HSL, a yellow and a blue with the same "Lightness" value look wildly different in brightness.</p>
-                    <p><strong>OKLCH</strong> fixes this. It's a modern color space designed around human vision. Its components are intuitive:</p>
+                    <p>Color models like <strong>RGB</strong> and <strong>HSL</strong> are based on how machines create color, not how humans perceive it. This can lead to unpredictable results. For instance, in HSL, changing the hue can also unintentionally change the perceived brightness of a color.</p>
+                    <p><strong>OKLCH</strong> is a color space designed around human vision, which makes it more intuitive. Its components are:</p>
                     <ul class="list-disc pl-6 space-y-2">
-                        <li><strong>L (Lightness):</strong> How bright a color appears, from 0% (black) to 100% (white). This is <strong>perceptually uniform</strong>.</li>
-                        <li><strong>C (Chroma):</strong> The "amount" of color or intensity. 0 is gray, and higher values are more vivid.</li>
+                        <li><strong>L (Lightness):</strong> How bright a color appears (0% to 100%). This is perceptually uniform.</li>
+                        <li><strong>C (Chroma):</strong> The intensity of a color. 0 is gray, higher is more vivid.</li>
                         <li><strong>H (Hue):</strong> The angle on the color wheel (0-360).</li>
                     </ul>
-                    <p>This predictability is a superpower. It allows us to create accessible, systematic, and beautiful color palettes with mathematical precision—perfect for the clear communication required in mathematics.</p>
+                    <p>This predictability is a significant advantage, as it allows for the creation of systematic and accessible color palettes. This is particularly useful for content that requires clarity, such as mathematics.</p>
                 </div>
             </section>
 
             <section id="how-to">
                 <h2 class="text-3xl mb-6">Creating a Palette for Math Content</h2>
-                <p class="mb-4">A good palette for mathematical content prioritizes clarity and focus. We'll use a dark theme as our example, as it reduces eye strain. The key is to avoid pure black and pure white, and instead use layered surfaces and muted accents. For example, the <strong>Fundamental Theorem of Calculus</strong> below is highlighted with our accent color for emphasis.</p>
+                <p class="mb-4">An effective palette for mathematical content prioritizes clarity and focus. This page uses a dark theme, which can help reduce eye strain. The approach is to use layered surfaces and muted accents rather than pure black and white. For example, the <strong>Fundamental Theorem of Calculus</strong> below is highlighted with an accent color for emphasis.</p>
 
                 <div class="key-equation-wrapper">
                     <div class="key-equation">
@@ -197,7 +208,7 @@
         </main>
         
         <footer class="text-center mt-16 pt-8 border-t border-gray-800">
-            <p>Built to demonstrate the power and elegance of OKLCH.</p>
+            <p>An interactive tool for exploring the OKLCH color space.</p>
         </footer>
 
     </div>
@@ -260,32 +271,38 @@
                 const cSlider = container.querySelector(`#c-${color.var}`);
                 const hSlider = container.querySelector(`#h-${color.var}`);
 
-                const updateColor = (variable, param, value) => {
-                    // Update the specific L, C, or H variable
-                    root.style.setProperty(`--${variable}-${param}`, value);
-                    
-                    // Update the UI controls
-                    const slider = document.getElementById(`${param}-${variable}`);
-                    if (slider) slider.value = value;
+                // The single source of truth for updating a color
+                const updateColor = () => {
+                    const l = lSlider.value;
+                    const c = cSlider.value;
+                    const h = hSlider.value;
 
-                    const valDisplay = document.getElementById(`${param}-val-${variable}`);
-                    if (valDisplay) valDisplay.textContent = parseFloat(value).toFixed(param === 'c' ? 3 : 1);
+                    // Directly update the composite variable for immediate visual feedback
+                    root.style.setProperty(`--${color.var}`, `oklch(${l}% ${c} ${h})`);
                     
-                    const inlineValDisplay = container.querySelector(`.draggable-value[data-var='${variable}'][data-param='${param}']`);
-                    if(inlineValDisplay) inlineValDisplay.textContent = parseFloat(value).toFixed(param === 'c' ? 3 : 1);
+                    // Also update the component variables for state consistency
+                    root.style.setProperty(`--${color.var}-l`, l);
+                    root.style.setProperty(`--${color.var}-c`, c);
+                    root.style.setProperty(`--${color.var}-h`, h);
+                    
+                    // Update UI text values
+                    container.querySelector(`#l-val-${color.var}`).textContent = parseFloat(l).toFixed(1);
+                    container.querySelector(`#c-val-${color.var}`).textContent = parseFloat(c).toFixed(3);
+                    container.querySelector(`#h-val-${color.var}`).textContent = Math.round(h);
+                    container.querySelector(`.draggable-value[data-param='l']`).textContent = parseFloat(l).toFixed(1);
+                    container.querySelector(`.draggable-value[data-param='c']`).textContent = parseFloat(c).toFixed(3);
+                    container.querySelector(`.draggable-value[data-param='h']`).textContent = Math.round(h);
                 };
                 
-                // Slider event listeners
-                lSlider.addEventListener('input', () => updateColor(color.var, 'l', lSlider.value));
-                cSlider.addEventListener('input', () => updateColor(color.var, 'c', cSlider.value));
-                hSlider.addEventListener('input', () => updateColor(color.var, 'h', hSlider.value));
+                lSlider.addEventListener('input', updateColor);
+                cSlider.addEventListener('input', updateColor);
+                hSlider.addEventListener('input', updateColor);
                 
-                // Accordion toggle logic
                 const header = container.querySelector('.color-control-header');
                 const panel = container.querySelector('.color-control-panel');
                 const chevron = container.querySelector('.chevron');
                 header.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('draggable-value')) return; // Don't toggle if clicking a value
+                    if (e.target.classList.contains('draggable-value')) return;
                     if (activePanel && activePanel !== panel) {
                         activePanel.classList.remove('active');
                         activePanel.previousElementSibling.querySelector('.chevron').style.transform = 'rotate(0deg)';
@@ -295,57 +312,39 @@
                     activePanel = panel.classList.contains('active') ? panel : null;
                 });
 
-                // Inline draggable value logic
                 container.querySelectorAll('.draggable-value').forEach(el => {
-                    el.addEventListener('mousedown', startDrag);
+                    el.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        const param = el.dataset.param;
+                        let startX = e.clientX;
+                        let startValue = parseFloat(el.textContent);
+
+                        const drag = (moveEvent) => {
+                            const dx = moveEvent.clientX - startX;
+                            const step = parseFloat(el.dataset.step);
+                            let newValue = startValue + dx * step;
+
+                            const slider = document.getElementById(`${param}-${color.var}`);
+                            if (param === 'l') newValue = Math.max(0, Math.min(100, newValue));
+                            if (param === 'c') newValue = Math.max(0, Math.min(0.37, newValue));
+                            if (param === 'h') newValue = (newValue % 360 + 360) % 360;
+                            
+                            slider.value = newValue;
+                            updateColor(); // Call the central update function
+                        };
+
+                        const stopDrag = () => {
+                            document.removeEventListener('mousemove', drag);
+                            document.removeEventListener('mouseup', stopDrag);
+                            document.body.style.cursor = 'default';
+                        };
+
+                        document.addEventListener('mousemove', drag);
+                        document.addEventListener('mouseup', stopDrag);
+                        document.body.style.cursor = 'ew-resize';
+                    });
                 });
             });
-
-            let dragElement = null;
-            let startX, startValue;
-
-            function startDrag(e) {
-                e.preventDefault();
-                dragElement = e.target;
-                startX = e.clientX;
-                startValue = parseFloat(dragElement.textContent);
-                document.addEventListener('mousemove', drag);
-                document.addEventListener('mouseup', stopDrag);
-                document.body.style.cursor = 'ew-resize';
-            }
-
-            function drag(e) {
-                if (!dragElement) return;
-                const dx = e.clientX - startX;
-                const param = dragElement.dataset.param;
-                const variable = dragElement.dataset.var;
-                const step = parseFloat(dragElement.dataset.step);
-
-                let newValue = startValue + dx * step;
-
-                // Clamp values to their respective ranges
-                if (param === 'l') newValue = Math.max(0, Math.min(100, newValue));
-                if (param === 'c') newValue = Math.max(0, Math.min(0.37, newValue));
-                if (param === 'h') newValue = (newValue % 360 + 360) % 360; // Wrap hue
-
-                // Update the color using the same central function
-                const lSlider = document.getElementById(`l-${variable}`);
-                const cSlider = document.getElementById(`c-${variable}`);
-                const hSlider = document.getElementById(`h-${variable}`);
-                if (param === 'l') lSlider.value = newValue;
-                if (param === 'c') cSlider.value = newValue;
-                if (param === 'h') hSlider.value = newValue;
-                lSlider.dispatchEvent(new Event('input'));
-                cSlider.dispatchEvent(new Event('input'));
-                hSlider.dispatchEvent(new Event('input'));
-            }
-
-            function stopDrag() {
-                document.removeEventListener('mousemove', drag);
-                document.removeEventListener('mouseup', stopDrag);
-                document.body.style.cursor = 'default';
-                dragElement = null;
-            }
         });
     </script>
 </body>
