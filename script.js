@@ -19,9 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
 
     /**
-     * Creates and configures a single color control widget.
+     * Creates a color control widget and its update function.
      * @param {object} color - The color object with name and CSS variable.
-     * @returns {HTMLElement} - The fully constructed color control element.
+     * @returns {object} - An object containing the element and its update function.
      */
     function createColorControl(color) {
         const container = document.createElement('div');
@@ -33,8 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         initialColorValues[color.var] = { l: initialL, c: initialC, h: initialH };
 
-        // **PATH FIX NOTE**: The 'src' path MUST use forward slashes (/), not backslashes (\).
-        // Also, ensure the file is named exactly 'icon-chevron-down.svg'.
         container.innerHTML = `
             <div class="color-control-header" data-target-panel="panel-${color.var}">
                 <div class="color-swatch" style="background-color: var(--${color.var});"></div>
@@ -46,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="draggable-value" data-param="h" data-var="${color.var}" data-step="1">${initialH}</span>)
                     </p>
                 </div>
-                <img src="./images/icons/icon-chevron-down.svg" alt="Toggle panel" class="chevron">
+                <img src="./images/chevron-down.svg" alt="Toggle panel" class="chevron">
             </div>
             <div class="color-control-panel" id="panel-${color.var}">
                 <label class="slider-label" for="l-${color.var}">Lightness</label>
@@ -67,22 +65,18 @@ document.addEventListener('DOMContentLoaded', () => {
         const cSlider = container.querySelector(`#c-${color.var}`);
         const hSlider = container.querySelector(`#h-${color.var}`);
 
-        // This is the updateColor function, defined locally for this control
         const updateColor = () => {
             const l = lSlider.value;
             const c = cSlider.value;
             const h = hSlider.value;
 
-            // Update the CSS variables that control the page's global styles
             root.style.setProperty(`--${color.var}-l`, l);
             root.style.setProperty(`--${color.var}-c`, c);
             root.style.setProperty(`--${color.var}-h`, h);
             
-            // **BUG FIX ADDED**: Update the color swatch's background in real-time.
             const swatch = container.querySelector('.color-swatch');
             swatch.style.backgroundColor = `oklch(${l}% ${c} ${h})`;
             
-            // Update the text value labels
             container.querySelector(`#l-val-${color.var}`).textContent = parseFloat(l).toFixed(1);
             container.querySelector(`#c-val-${color.var}`).textContent = parseFloat(c).toFixed(3);
             container.querySelector(`#h-val-${color.var}`).textContent = Math.round(h);
@@ -103,19 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
             slider.dispatchEvent(new Event('input', { bubbles: true }));
         };
         
-        return container;
+        // Return both the element and its update function
+        return { element: container, update: updateColor };
     }
 
-    /**
-     * Initializes the click-and-drag functionality for a value span.
-     * @param {HTMLElement} el - The element to make draggable.
-     * @param {function} updateCallback - The function to call to update the UI.
-     */
     function initializeDraggableValue(el, updateCallback) {
         el.addEventListener('mousedown', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-
+            e.preventDefault(); e.stopPropagation();
             const param = el.dataset.param;
             const colorVar = el.dataset.var;
             const slider = document.getElementById(`${param}-${colorVar}`);
@@ -148,13 +136,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Initialize all color controls
+    // **FIX APPLIED HERE**
+    // Initialize all color controls and run their update function once.
     colorVariables.forEach(color => {
-        const controlElement = createColorControl(color);
-        colorEditor.appendChild(controlElement);
+        const control = createColorControl(color);
+        colorEditor.appendChild(control.element);
+        control.update(); // This forces the initial color values to be set.
     });
 
-    // Use event delegation for toggling panels
     colorEditor.addEventListener('click', (e) => {
         const header = e.target.closest('.color-control-header');
         if (!header) return;
