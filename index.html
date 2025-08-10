@@ -29,8 +29,8 @@
         /* Basic theme setup using OKLCH */
         :root {
             /* We define the L, C, H components separately for modular control */
-            --surface-1-l: 15; --surface-1-c: 0.02; --surface-1-h: 250;
-            --surface-2-l: 20; --surface-2-c: 0.025; --surface-2-h: 250;
+            --surface-1-l: 18; --surface-1-c: 0.02; --surface-1-h: 250; /* Lightness updated to 18% */
+            --surface-2-l: 22; --surface-2-c: 0.025; --surface-2-h: 250; /* Adjusted for new base */
             --surface-3-l: 30; --surface-3-c: 0.03; --surface-3-h: 250;
             
             --text-primary-l: 95; --text-primary-c: 0.01; --text-primary-h: 250;
@@ -106,6 +106,7 @@
             border-radius: 0.5rem;
             cursor: pointer;
             border: 2px solid var(--surface-3);
+            transition: background-color 0.1s ease, border-color 0.1s ease;
         }
         
         .slider-label, .value-label {
@@ -131,33 +132,32 @@
             width: 100%; height: 6px;
             background: var(--surface-3);
             border-radius: 5px; outline: none;
-            /* Constant bright border for visibility */
             border: 1px solid oklch(50% 0.02 250);
         }
         
         input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            /* Constant white circle for the thumb */
+            -webkit-appearance: none; appearance: none;
+            width: 18px; height: 18px;
             background: oklch(98% 0 0);
             border-radius: 50%;
             cursor: pointer;
             border: 1px solid oklch(80% 0 0);
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-            margin-top: -7px; /* Vertically center the thumb on the track */
+            margin-top: -7px;
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            /* Constant white circle for the thumb */
+            width: 18px; height: 18px;
             background: oklch(98% 0 0);
             border-radius: 50%;
             cursor: pointer;
             border: 1px solid oklch(80% 0 0);
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        /* Styling for the new section */
+        .prose ul > li::marker {
+            color: var(--text-secondary);
         }
     </style>
 </head>
@@ -191,7 +191,7 @@
 
                 <div class="key-equation-wrapper">
                     <div class="key-equation">
-                        $$ \int_{a}^{b} f(x) \, dx = F(b) - F(a) $$
+                        $$\int_{a}^{b} f(x) \, dx = F(b) - F(a)$$
                     </div>
                 </div>
 
@@ -202,6 +202,50 @@
                     <div class="space-y-4" id="color-editor">
                         <!-- Color controls will be dynamically inserted here by JavaScript -->
                     </div>
+                </div>
+            </section>
+
+            <!-- NEW SECTION: COLOR THEORY -->
+            <section id="color-theory">
+                <h2 class="text-3xl mb-6">Applying Color Theory with Your Palette</h2>
+                <div class="prose prose-invert max-w-none space-y-4">
+                    <p>A well-defined set of color variables is the first step. The next is to apply them using established design principles to create a clear, effective, and aesthetically pleasing hierarchy. This is where color theory guides our decisions.</p>
+
+                    <h3 class="text-2xl mt-8 mb-4">The Core Roles: Surface, Text, and Accent</h3>
+                    <p>Your palette is built on three fundamental roles that work together to structure the user interface:</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Surface:</strong> These are the foundational colors of your UI. They create the canvas on which everything else is placed. The different surface levels (e.g., background, card) are used to create a sense of depth and visual organization.</li>
+                        <li><strong>Text:</strong> These colors are used for all readable content. The distinction between primary and secondary text colors is crucial for creating a scannable hierarchy, guiding the user's eye to the most important information first.</li>
+                        <li><strong>Accent:</strong> These are the colors that draw attention. They are used sparingly for interactive elements like links, buttons, and, in our case, key equations. Their purpose is to highlight important actions and information.</li>
+                    </ul>
+
+                    <h3 class="text-2xl mt-8 mb-4">The 60-30-10 Rule: A Framework for Balance</h3>
+                    <p>The 60-30-10 rule is a classic interior design principle that adapts perfectly to UI design. It provides a simple framework for creating a balanced and harmonious color scheme:</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>60% (Primary/Surface):</strong> The majority of your interface should be your primary surface and text colors. This creates a calm, uncluttered foundation. In our palette, <code>--surface-1</code>, <code>--surface-2</code>, <code>--text-primary</code>, and <code>--text-secondary</code> collectively form this group.</li>
+                        <li><strong>30% (Secondary/Accent):</strong> This portion is for your secondary accent colors. This could be the color of a secondary button or, in a more complex UI, the color used for a specific module. Our <code>--accent-link</code> color fits well here.</li>
+                        <li><strong>10% (Highlight/Accent):</strong> This is your most vibrant accent color, used for key calls-to-action and highlights. It should be used sparingly to maximize its impact. Our <code>--accent-equation</code> is a perfect example of this, drawing immediate attention to the most critical content.</li>
+                    </ul>
+
+                    <h3 class="text-2xl mt-8 mb-4">Choosing a Color Harmony</h3>
+                    <p>The relationship between your hues determines the overall mood of your site. For technical content, a calm and focused atmosphere is ideal.</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Analogous for Surfaces and Text:</strong> Our palette uses an analogous scheme for its base. All the surface and text colors share the same hue (H = 250). By only varying the Lightness and Chroma, we create a cohesive, monochromatic, and serene blue-gray environment. This is an excellent strategy for the foundational 60% of your design.</li>
+                        <li><strong>Complementary for the Main Accent:</strong> To make the main accent (<code>--accent-equation</code>) truly pop, we use a complementary color. Our base hue is blue (250), and the accent is a warm gold/yellow (90). On the color wheel, these are roughly opposite, creating the strongest possible visual contrast in hue. This makes the 10% highlight incredibly effective.</li>
+                    </ul>
+
+                    <h3 class="text-2xl mt-8 mb-4">Exceptions and Additional Categories</h3>
+                    <p>While these rules provide a strong foundation, they are not absolute. Effective design requires knowing when to bend them.</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Data Visualization:</strong> When displaying charts or graphs, you will often need a wider range of distinct colors. In this case, you might introduce a palette of 4-6 categorical colors that are chosen to be maximally distinguishable from each other, temporarily overriding the 60-30-10 rule within that specific component.</li>
+                        <li><strong>Feedback & Status Colors:</strong> A crucial category not included in our minimalist palette is for user feedback. You should always define a consistent set of colors for success, error, and warning states. These colors have strong semantic meaning and should be used consistently. For example:
+                            <ul class="list-disc pl-10 mt-2 space-y-1">
+                                <li><strong>Success:</strong> A clear green (e.g., <code>oklch(65% 0.15 150)</code>)</li>
+                                <li><strong>Error:</strong> A distinct red (e.g., <code>oklch(65% 0.2 25)</code>)</li>
+                                <li><strong>Warning:</strong> An amber or orange (e.g., <code>oklch(70% 0.18 60)</code>)</li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
             </section>
 
@@ -239,12 +283,11 @@
                 const initialC = getComputedStyle(root).getPropertyValue(`--${color.var}-c`).trim();
                 const initialH = getComputedStyle(root).getPropertyValue(`--${color.var}-h`).trim();
                 
-                // Store the initial values for the reset functionality
                 initialColorValues[color.var] = { l: initialL, c: initialC, h: initialH };
 
                 container.innerHTML = `
                     <div class="flex items-center gap-4 cursor-pointer color-control-header">
-                        <div class="color-swatch" style="background-color: var(--${color.var})"></div>
+                        <div class="color-swatch"></div>
                         <div class="flex-grow">
                             <h4 class="text-lg font-semibold">${color.name}</h4>
                             <p class="text-sm font-mono text-gray-400 value-label" id="value-${color.var}">
@@ -270,6 +313,9 @@
                     </div>
                 `;
                 colorEditor.appendChild(container);
+
+                const swatch = container.querySelector('.color-swatch');
+                swatch.style.backgroundColor = `var(--${color.var})`;
 
                 const lSlider = container.querySelector(`#l-${color.var}`);
                 const cSlider = container.querySelector(`#c-${color.var}`);
@@ -297,7 +343,6 @@
                 cSlider.addEventListener('input', updateColor);
                 hSlider.addEventListener('input', updateColor);
 
-                // --- NEW: Double-click to reset functionality ---
                 const resetSlider = (slider, param) => {
                     slider.value = initialColorValues[color.var][param];
                     slider.dispatchEvent(new Event('input', { bubbles: true }));
@@ -306,7 +351,6 @@
                 lSlider.addEventListener('dblclick', () => resetSlider(lSlider, 'l'));
                 cSlider.addEventListener('dblclick', () => resetSlider(cSlider, 'c'));
                 hSlider.addEventListener('dblclick', () => resetSlider(hSlider, 'h'));
-                // --- END NEW ---
                 
                 const header = container.querySelector('.color-control-header');
                 const panel = container.querySelector('.color-control-panel');
