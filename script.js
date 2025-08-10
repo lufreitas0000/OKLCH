@@ -18,11 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
         { name: 'Accent (Link)', var: 'accent-link' },
     ];
 
-    /**
-     * Creates a color control widget and its update function.
-     * @param {object} color - The color object with name and CSS variable.
-     * @returns {object} - An object containing the element and its update function.
-     */
     function createColorControl(color) {
         const container = document.createElement('div');
         container.className = 'color-control-container';
@@ -70,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const c = cSlider.value;
             const h = hSlider.value;
 
+            // **THE FIX IS HERE**: This line directly updates the final color variable.
+            root.style.setProperty(`--${color.var}`, `oklch(${l}% ${c} ${h})`);
+
+            // These lines update the components for reference
             root.style.setProperty(`--${color.var}-l`, l);
             root.style.setProperty(`--${color.var}-c`, c);
             root.style.setProperty(`--${color.var}-h`, h);
@@ -97,7 +96,6 @@ document.addEventListener('DOMContentLoaded', () => {
             slider.dispatchEvent(new Event('input', { bubbles: true }));
         };
         
-        // Return both the element and its update function
         return { element: container, update: updateColor };
     }
 
@@ -136,12 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // **FIX APPLIED HERE**
-    // Initialize all color controls and run their update function once.
     colorVariables.forEach(color => {
         const control = createColorControl(color);
         colorEditor.appendChild(control.element);
-        control.update(); // This forces the initial color values to be set.
+        control.update();
     });
 
     colorEditor.addEventListener('click', (e) => {
