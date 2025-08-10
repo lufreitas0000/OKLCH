@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en" class="dark-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Guide to OKLCH Color</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // MathJax Configuration
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true,
+                tags: 'ams'
+            },
+            svg: {
+                fontCache: 'global'
+            }
+        };
+    </script>
+    <script type="text/javascript" id="MathJax-script" async
+        src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+    <style>
+        /* Basic theme setup using OKLCH */
+        :root {
+            /* We define the L, C, H components separately for modular control */
+            --surface-1-l: 18; --surface-1-c: 0.02; --surface-1-h: 250; /* Lightness updated to 18% */
+            --surface-2-l: 22; --surface-2-c: 0.025; --surface-2-h: 250; /* Adjusted for new base */
+            --surface-3-l: 30; --surface-3-c: 0.03; --surface-3-h: 250;
+            
+            --text-primary-l: 95; --text-primary-c: 0.01; --text-primary-h: 250;
+            --text-secondary-l: 65; --text-secondary-c: 0.01; --text-secondary-h: 250;
+
+            --accent-equation-l: 75; --accent-equation-c: 0.15; --accent-equation-h: 90;
+            --accent-link-l: 70; --accent-link-c: 0.18; --accent-link-h: 250;
+
+            /* Composite variables that use the components */
+            --surface-1: oklch(var(--surface-1-l)% var(--surface-1-c) var(--surface-1-h));
+            --surface-2: oklch(var(--surface-2-l)% var(--surface-2-c) var(--surface-2-h));
+            --surface-3: oklch(var(--surface-3-l)% var(--surface-3-c) var(--surface-3-h));
+            
+            --text-primary: oklch(var(--text-primary-l)% var(--text-primary-c) var(--text-primary-h));
+            --text-secondary: oklch(var(--text-secondary-l)% var(--text-secondary-c) var(--text-secondary-h));
+            
+            --accent-equation: oklch(var(--accent-equation-l)% var(--accent-equation-c) var(--accent-equation-h));
+            --accent-link: oklch(var(--accent-link-l)% var(--accent-link-c) var(--accent-link-h));
+
+            font-family: 'Work Sans', sans-serif;
+            color-scheme: dark;
+        }
+
+        body {
+            background-color: var(--surface-1);
+            color: var(--text-primary);
+            transition: background-color 0.1s ease, color 0.1s ease;
+        }
+        
+        h1, h2, h3 { font-weight: 600; letter-spacing: -0.02em; }
+        p { line-height: 1.7; color: var(--text-secondary); }
+        strong { color: var(--text-primary); font-weight: 600; }
+        a { color: var(--accent-link); font-weight: 600; text-decoration: none; transition: color 0.2s ease; }
+        a:hover { color: oklch(from var(--accent-link) calc(l + 0.1) c h); }
+
+        .key-equation-wrapper {
+            margin: 2.5rem 0;
+            display: flex;
+            justify-content: center;
+        }
+        .key-equation {
+            background-color: var(--surface-2);
+            color: var(--accent-equation);
+            padding: 1.5rem 2rem;
+            border-radius: 12px;
+            border: 1px solid var(--surface-3);
+            font-size: 1.5rem;
+            transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+        }
+        
+        .card {
+            background-color: var(--surface-2);
+            border: 1px solid var(--surface-3);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: background-color 0.1s ease, border-color 0.1s ease;
+        }
+        
+        .color-control-panel {
+            display: none;
+            grid-template-columns: 1fr 3fr 0.5fr;
+            gap: 1rem;
+            align-items: center;
+            padding-top: 1rem;
+            margin-top: 0.5rem;
+            border-top: 1px solid var(--surface-3);
+        }
+        .color-control-panel.active { display: grid; }
+        
+        .color-swatch {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            border: 2px solid var(--surface-3);
+            transition: background-color 0.1s ease, border-color 0.1s ease;
+        }
+        
+        .slider-label, .value-label {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+        
+        .draggable-value {
+            cursor: ew-resize;
+            padding: 0.1rem 0.2rem;
+            border-radius: 4px;
+            transition: background-color 0.2s ease;
+        }
+        .draggable-value:hover {
+            background-color: var(--surface-3);
+            color: var(--text-primary);
+        }
+
+        /* --- Slider Styling --- */
+        input[type="range"] {
+            -webkit-appearance: none; appearance: none;
+            width: 100%; height: 6px;
+            background: var(--surface-3);
+            border-radius: 5px; outline: none;
+            border: 1px solid oklch(50% 0.02 250);
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 18px; height: 18px;
+            background: oklch(98% 0 0);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid oklch(80% 0 0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            margin-top: -7px;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px; height: 18px;
+            background: oklch(98% 0 0);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 1px solid oklch(80% 0 0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        
+        /* Styling for the new section */
+        .prose ul > li::marker {
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="max-w-4xl mx-auto px-6 py-16 md:py-24">
+        
+        <header class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold">A Guide to OKLCH Color</h1>
+        </header>
+
+        <main class="space-y-12">
+            
+            <section id="why-oklch">
+                <h2 class="text-3xl mb-6">The Advantage of OKLCH</h2>
+                <div class="prose prose-invert max-w-none space-y-4">
+                    <p>Color models like <strong>RGB</strong> and <strong>HSL</strong> are based on how machines create color, not how humans perceive it. This can lead to unpredictable results. For instance, in HSL, changing the hue can also unintentionally change the perceived brightness of a color.</p>
+                    <p><strong>OKLCH</strong> is a color space designed around human vision, which makes it more intuitive. Its components are:</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>L (Lightness):</strong> How bright a color appears (0% to 100%). This is perceptually uniform.</li>
+                        <li><strong>C (Chroma):</strong> The intensity of a color. 0 is gray, higher is more vivid.</li>
+                        <li><strong>H (Hue):</strong> The angle on the color wheel (0-360).</li>
+                    </ul>
+                    <p>This predictability is a significant advantage, as it allows for the creation of systematic and accessible color palettes. This is particularly useful for content that requires clarity, such as mathematics.</p>
+                </div>
+            </section>
+
+            <section id="how-to">
+                <h2 class="text-3xl mb-6">Creating a Palette for Math Content</h2>
+                <p class="mb-4">An effective palette for mathematical content prioritizes clarity and focus. This page uses a dark theme, which can help reduce eye strain. The approach is to use layered surfaces and muted accents rather than pure black and white. For example, the <strong>Fundamental Theorem of Calculus</strong> below is highlighted with an accent color for emphasis.</p>
+
+                <div class="key-equation-wrapper">
+                    <div class="key-equation">
+                        $$\int_{a}^{b} f(x) \, dx = F(b) - F(a)$$
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="text-2xl mb-6">Interactive Color Customizer</h3>
+                    <p class="mb-6">Below are the core colors for this page. Click to expand and use the sliders, click and drag the values, or double-click a slider to reset it to its default value.</p>
+                    
+                    <div class="space-y-4" id="color-editor">
+                        <!-- Color controls will be dynamically inserted here by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW SECTION: COLOR THEORY -->
+            <section id="color-theory">
+                <h2 class="text-3xl mb-6">Applying Color Theory with Your Palette</h2>
+                <div class="prose prose-invert max-w-none space-y-4">
+                    <p>A well-defined set of color variables is the first step. The next is to apply them using established design principles to create a clear, effective, and aesthetically pleasing hierarchy. This is where color theory guides our decisions.</p>
+
+                    <h3 class="text-2xl mt-8 mb-4">The Core Roles: Surface, Text, and Accent</h3>
+                    <p>Your palette is built on three fundamental roles that work together to structure the user interface:</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Surface:</strong> These are the foundational colors of your UI. They create the canvas on which everything else is placed. The different surface levels (e.g., background, card) are used to create a sense of depth and visual organization.</li>
+                        <li><strong>Text:</strong> These colors are used for all readable content. The distinction between primary and secondary text colors is crucial for creating a scannable hierarchy, guiding the user's eye to the most important information first.</li>
+                        <li><strong>Accent:</strong> These are the colors that draw attention. They are used sparingly for interactive elements like links, buttons, and, in our case, key equations. Their purpose is to highlight important actions and information.</li>
+                    </ul>
+
+                    <h3 class="text-2xl mt-8 mb-4">The 60-30-10 Rule: A Framework for Balance</h3>
+                    <p>The 60-30-10 rule is a classic interior design principle that adapts perfectly to UI design. It provides a simple framework for creating a balanced and harmonious color scheme:</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>60% (Primary/Surface):</strong> The majority of your interface should be your primary surface and text colors. This creates a calm, uncluttered foundation. In our palette, <code>--surface-1</code>, <code>--surface-2</code>, <code>--text-primary</code>, and <code>--text-secondary</code> collectively form this group.</li>
+                        <li><strong>30% (Secondary/Accent):</strong> This portion is for your secondary accent colors. This could be the color of a secondary button or, in a more complex UI, the color used for a specific module. Our <code>--accent-link</code> color fits well here.</li>
+                        <li><strong>10% (Highlight/Accent):</strong> This is your most vibrant accent color, used for key calls-to-action and highlights. It should be used sparingly to maximize its impact. Our <code>--accent-equation</code> is a perfect example of this, drawing immediate attention to the most critical content.</li>
+                    </ul>
+
+                    <h3 class="text-2xl mt-8 mb-4">Choosing a Color Harmony</h3>
+                    <p>The relationship between your hues determines the overall mood of your site. For technical content, a calm and focused atmosphere is ideal.</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Analogous for Surfaces and Text:</strong> Our palette uses an analogous scheme for its base. All the surface and text colors share the same hue (H = 250). By only varying the Lightness and Chroma, we create a cohesive, monochromatic, and serene blue-gray environment. This is an excellent strategy for the foundational 60% of your design.</li>
+                        <li><strong>Complementary for the Main Accent:</strong> To make the main accent (<code>--accent-equation</code>) truly pop, we use a complementary color. Our base hue is blue (250), and the accent is a warm gold/yellow (90). On the color wheel, these are roughly opposite, creating the strongest possible visual contrast in hue. This makes the 10% highlight incredibly effective.</li>
+                    </ul>
+
+                    <h3 class="text-2xl mt-8 mb-4">Exceptions and Additional Categories</h3>
+                    <p>While these rules provide a strong foundation, they are not absolute. Effective design requires knowing when to bend them.</p>
+                    <ul class="list-disc pl-6 space-y-2">
+                        <li><strong>Data Visualization:</strong> When displaying charts or graphs, you will often need a wider range of distinct colors. In this case, you might introduce a palette of 4-6 categorical colors that are chosen to be maximally distinguishable from each other, temporarily overriding the 60-30-10 rule within that specific component.</li>
+                        <li><strong>Feedback & Status Colors:</strong> A crucial category not included in our minimalist palette is for user feedback. You should always define a consistent set of colors for success, error, and warning states. These colors have strong semantic meaning and should be used consistently. For example:
+                            <ul class="list-disc pl-10 mt-2 space-y-1">
+                                <li><strong>Success:</strong> A clear green (e.g., <code>oklch(65% 0.15 150)</code>)</li>
+                                <li><strong>Error:</strong> A distinct red (e.g., <code>oklch(65% 0.2 25)</code>)</li>
+                                <li><strong>Warning:</strong> An amber or orange (e.g., <code>oklch(70% 0.18 60)</code>)</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+        </main>
+        
+        <footer class="text-center mt-16 pt-8 border-t border-gray-800">
+            <p>An interactive tool for exploring the OKLCH color space.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const colorEditor = document.getElementById('color-editor');
+            const root = document.documentElement;
+            const initialColorValues = {}; // Object to store default values
+
+            const colorVariables = [
+                { name: 'Surface (Background)', var: 'surface-1' },
+                { name: 'Surface (Card/Modal)', var: 'surface-2' },
+                { name: 'Surface (Interactive)', var: 'surface-3' },
+                { name: 'Text (Primary)', var: 'text-primary' },
+                { name: 'Text (Secondary)', var: 'text-secondary' },
+                { name: 'Accent (Equation)', var: 'accent-equation' },
+                { name: 'Accent (Link)', var: 'accent-link' },
+            ];
+            
+            let activePanel = null;
+
+            colorVariables.forEach(color => {
+                const container = document.createElement('div');
+                container.className = 'color-control-container';
+
+                const initialL = getComputedStyle(root).getPropertyValue(`--${color.var}-l`).trim();
+                const initialC = getComputedStyle(root).getPropertyValue(`--${color.var}-c`).trim();
+                const initialH = getComputedStyle(root).getPropertyValue(`--${color.var}-h`).trim();
+                
+                initialColorValues[color.var] = { l: initialL, c: initialC, h: initialH };
+
+                container.innerHTML = `
+                    <div class="flex items-center gap-4 cursor-pointer color-control-header">
+                        <div class="color-swatch"></div>
+                        <div class="flex-grow">
+                            <h4 class="text-lg font-semibold">${color.name}</h4>
+                            <p class="text-sm font-mono text-gray-400 value-label" id="value-${color.var}">
+                                oklch(<span class="draggable-value" data-param="l" data-var="${color.var}" data-step="0.1">${initialL}</span>% 
+                                <span class="draggable-value" data-param="c" data-var="${color.var}" data-step="0.001">${initialC}</span> 
+                                <span class="draggable-value" data-param="h" data-var="${color.var}" data-step="1">${initialH}</span>)
+                            </p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-gray-500 transition-transform chevron"><path d="m6 9 6 6 6-6"></path></svg>
+                    </div>
+                    <div class="color-control-panel" id="panel-${color.var}">
+                        <label class="slider-label" for="l-${color.var}">Lightness</label>
+                        <input type="range" id="l-${color.var}" min="0" max="100" step="0.1" value="${initialL}">
+                        <span class="value-label" id="l-val-${color.var}">${initialL}</span>
+                        
+                        <label class="slider-label" for="c-${color.var}">Chroma</label>
+                        <input type="range" id="c-${color.var}" min="0" max="0.37" step="0.001" value="${initialC}">
+                        <span class="value-label" id="c-val-${color.var}">${initialC}</span>
+
+                        <label class="slider-label" for="h-${color.var}">Hue</label>
+                        <input type="range" id="h-${color.var}" min="0" max="360" step="1" value="${initialH}">
+                        <span class="value-label" id="h-val-${color.var}">${initialH}</span>
+                    </div>
+                `;
+                colorEditor.appendChild(container);
+
+                const swatch = container.querySelector('.color-swatch');
+                swatch.style.backgroundColor = `var(--${color.var})`;
+
+                const lSlider = container.querySelector(`#l-${color.var}`);
+                const cSlider = container.querySelector(`#c-${color.var}`);
+                const hSlider = container.querySelector(`#h-${color.var}`);
+
+                const updateColor = () => {
+                    const l = lSlider.value;
+                    const c = cSlider.value;
+                    const h = hSlider.value;
+
+                    root.style.setProperty(`--${color.var}`, `oklch(${l}% ${c} ${h})`);
+                    root.style.setProperty(`--${color.var}-l`, l);
+                    root.style.setProperty(`--${color.var}-c`, c);
+                    root.style.setProperty(`--${color.var}-h`, h);
+                    
+                    container.querySelector(`#l-val-${color.var}`).textContent = parseFloat(l).toFixed(1);
+                    container.querySelector(`#c-val-${color.var}`).textContent = parseFloat(c).toFixed(3);
+                    container.querySelector(`#h-val-${color.var}`).textContent = Math.round(h);
+                    container.querySelector(`.draggable-value[data-param='l']`).textContent = parseFloat(l).toFixed(1);
+                    container.querySelector(`.draggable-value[data-param='c']`).textContent = parseFloat(c).toFixed(3);
+                    container.querySelector(`.draggable-value[data-param='h']`).textContent = Math.round(h);
+                };
+                
+                lSlider.addEventListener('input', updateColor);
+                cSlider.addEventListener('input', updateColor);
+                hSlider.addEventListener('input', updateColor);
+
+                const resetSlider = (slider, param) => {
+                    slider.value = initialColorValues[color.var][param];
+                    slider.dispatchEvent(new Event('input', { bubbles: true }));
+                };
+
+                lSlider.addEventListener('dblclick', () => resetSlider(lSlider, 'l'));
+                cSlider.addEventListener('dblclick', () => resetSlider(cSlider, 'c'));
+                hSlider.addEventListener('dblclick', () => resetSlider(hSlider, 'h'));
+                
+                const header = container.querySelector('.color-control-header');
+                const panel = container.querySelector('.color-control-panel');
+                const chevron = container.querySelector('.chevron');
+                header.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('draggable-value')) return;
+                    if (activePanel && activePanel !== panel) {
+                        activePanel.classList.remove('active');
+                        activePanel.previousElementSibling.querySelector('.chevron').style.transform = 'rotate(0deg)';
+                    }
+                    panel.classList.toggle('active');
+                    chevron.style.transform = panel.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0deg)';
+                    activePanel = panel.classList.contains('active') ? panel : null;
+                });
+
+                container.querySelectorAll('.draggable-value').forEach(el => {
+                    el.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        const param = el.dataset.param;
+                        let startX = e.clientX;
+                        let startValue = parseFloat(el.textContent);
+
+                        const drag = (moveEvent) => {
+                            const dx = moveEvent.clientX - startX;
+                            const step = parseFloat(el.dataset.step);
+                            let newValue = startValue + dx * step;
+
+                            const slider = document.getElementById(`${param}-${color.var}`);
+                            if (param === 'l') newValue = Math.max(0, Math.min(100, newValue));
+                            if (param === 'c') newValue = Math.max(0, Math.min(0.37, newValue));
+                            if (param === 'h') newValue = (newValue % 360 + 360) % 360;
+                            
+                            slider.value = newValue;
+                            updateColor();
+                        };
+
+                        const stopDrag = () => {
+                            document.removeEventListener('mousemove', drag);
+                            document.removeEventListener('mouseup', stopDrag);
+                            document.body.style.cursor = 'default';
+                        };
+
+                        document.addEventListener('mousemove', drag);
+                        document.addEventListener('mouseup', stopDrag);
+                        document.body.style.cursor = 'ew-resize';
+                    });
+                });
+                
+                // --- BUG FIX: Force initial color update on page load ---
+                updateColor();
+                // --- END BUG FIX ---
+            });
+        });
+    </script>
+</body>
+</html>

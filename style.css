@@ -1,0 +1,274 @@
+/* 1. CSS Reset */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 2. Design Tokens (Custom Properties) */
+:root {
+    /* Color Palette (L, C, H components) */
+    --surface-1-l: 18; --surface-1-c: 0.02; --surface-1-h: 250;
+    --surface-2-l: 22; --surface-2-c: 0.025; --surface-2-h: 250;
+    --surface-3-l: 30; --surface-3-c: 0.03; --surface-3-h: 250;
+    
+    --text-primary-l: 95; --text-primary-c: 0.01; --text-primary-h: 250;
+    --text-secondary-l: 65; --text-secondary-c: 0.01; --text-secondary-h: 250;
+
+    --accent-equation-l: 75; --accent-equation-c: 0.15; --accent-equation-h: 90;
+    --accent-link-l: 70; --accent-link-c: 0.18; --accent-link-h: 250;
+
+    /* Composite Color Variables */
+    --surface-1: oklch(var(--surface-1-l)% var(--surface-1-c) var(--surface-1-h));
+    --surface-2: oklch(var(--surface-2-l)% var(--surface-2-c) var(--surface-2-h));
+    --surface-3: oklch(var(--surface-3-l)% var(--surface-3-c) var(--surface-3-h));
+    
+    --text-primary: oklch(var(--text-primary-l)% var(--text-primary-c) var(--text-primary-h));
+    --text-secondary: oklch(var(--text-secondary-l)% var(--text-secondary-c) var(--text-secondary-h));
+    
+    --accent-equation: oklch(var(--accent-equation-l)% var(--accent-equation-c) var(--accent-equation-h));
+    --accent-link: oklch(var(--accent-link-l)% var(--accent-link-c) var(--accent-link-h));
+    --border-color: oklch(50% 0.02 250);
+
+    /* Typography */
+    --font-primary: 'Work Sans', 'Inter', 'Noto Sans', sans-serif;
+    --font-mono: 'Fira Code', monospace;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-xxl: 2.5rem;
+}
+
+/* 3. Global Styles */
+body {
+    background-color: var(--surface-1);
+    color: var(--text-primary);
+    font-family: var(--font-primary);
+    color-scheme: dark;
+    transition: background-color 0.1s ease, color 0.1s ease;
+}
+
+.container {
+    max-width: 64rem; /* 1024px */
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .container {
+        padding: 6rem 1.5rem;
+    }
+}
+
+/* 4. Typography Styles */
+h1, h2, h3 { 
+    font-weight: 600; 
+    letter-spacing: -0.02em; 
+}
+
+h1 { font-size: 2.25rem; } /* 36px */
+h2 { font-size: 1.875rem; margin-bottom: 1.5rem; } /* 30px */
+h3 { font-size: 1.5rem; margin-bottom: 1.5rem; } /* 24px */
+
+p, ul { 
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+strong { 
+    color: var(--text-primary); 
+    font-weight: 600; 
+}
+
+a { 
+    color: var(--accent-link); 
+    font-weight: 600; 
+    text-decoration: none; 
+    transition: color 0.2s ease; 
+}
+
+a:hover, a:focus-visible { 
+    color: oklch(from var(--accent-link) calc(l + 0.1) c h); 
+    outline: none;
+}
+
+.prose p, .prose ul {
+    margin-bottom: 1rem;
+}
+
+.prose ul {
+    list-style-position: inside;
+    padding-left: var(--spacing-md);
+}
+
+.prose ul li::marker {
+    color: var(--text-secondary);
+}
+
+/* 5. Component Styles */
+.page-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.page-title {
+    font-size: 2.5rem;
+}
+@media (min-width: 768px) {
+    .page-title {
+        font-size: 3rem;
+    }
+}
+
+.content-wrapper > section:not(:last-child) {
+    margin-bottom: 3rem;
+}
+
+.key-equation-wrapper {
+    margin: var(--spacing-xxl) 0;
+    display: flex;
+    justify-content: center;
+}
+
+.key-equation {
+    background-color: var(--surface-2);
+    color: var(--accent-equation);
+    padding: var(--spacing-lg) var(--spacing-xl);
+    border-radius: 12px;
+    border: 1px solid var(--surface-3);
+    font-size: 1.5rem;
+    transition: background-color 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+}
+
+.card {
+    background-color: var(--surface-2);
+    border: 1px solid var(--surface-3);
+    border-radius: 12px;
+    padding: var(--spacing-xl);
+    transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.page-footer {
+    text-align: center;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--surface-3);
+    color: var(--text-secondary);
+}
+
+/* 6. Color Editor Styles */
+.color-editor-container {
+    margin-top: var(--spacing-lg);
+}
+
+.color-control-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    cursor: pointer;
+    padding: var(--spacing-sm) 0;
+}
+
+.color-control-header h4 {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+.color-control-header .value-label {
+    color: var(--text-secondary);
+}
+
+.color-control-header .chevron {
+    width: 24px;
+    height: 24px;
+    margin-left: auto;
+    color: var(--text-secondary);
+    transition: transform 0.2s ease-in-out;
+}
+
+.color-swatch {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    border: 2px solid var(--surface-3);
+    transition: background-color 0.1s ease, border-color 0.1s ease;
+}
+
+.draggable-value {
+    cursor: ew-resize;
+    padding: 0.1rem 0.2rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.draggable-value:hover, .draggable-value:focus-visible {
+    background-color: var(--surface-3);
+    color: var(--text-primary);
+    outline: none;
+}
+
+.color-control-panel {
+    display: none; /* Changed from grid to none */
+    grid-template-columns: 1fr 3fr 0.5fr;
+    gap: 1rem;
+    align-items: center;
+    padding-top: 1rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--surface-3);
+}
+
+.color-control-panel.active {
+    display: grid;
+}
+
+.color-control-header.active .chevron {
+    transform: rotate(180deg);
+}
+
+.slider-label, .value-label {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Slider Styling */
+input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px;
+    background: var(--surface-3);
+    border-radius: 5px; outline: none;
+    border: 1px solid var(--border-color);
+}
+input[type="range"]:focus-visible {
+    outline: 2px solid var(--accent-link);
+    outline-offset: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px;
+    background: oklch(98% 0 0);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 1px solid oklch(80% 0 0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    margin-top: -7px;
+}
+input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    background: oklch(98% 0 0);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 1px solid oklch(80% 0 0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
